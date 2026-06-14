@@ -1,0 +1,6 @@
+{
+  "name": "IAH.AI",
+  "description": "Intelligent AI Hub - A premium, futuristic AI platform and ecosystem where all your AI apps can be searched, managed, and launched from one unified dashboard.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

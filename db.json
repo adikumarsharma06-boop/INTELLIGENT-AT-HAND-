@@ -1,0 +1,148 @@
+{
+  "apps": [
+    {
+      "id": "iah-chatbot",
+      "name": "IAH Chatbot",
+      "description": "Autonomous conversational assistant and neural chat terminal. Solve complex logical problems, analyze code, and access natural-language reasoning instantly.",
+      "logo": "MessageSquare",
+      "category": "AI Chat",
+      "tags": [
+        "Conversational AI",
+        "Neural Chat",
+        "Logic Assistant"
+      ],
+      "url": "https://iahchatbot.netlify.app/",
+      "featured": true,
+      "premium": false,
+      "views": 31205,
+      "rating": 4.9,
+      "ratingsCount": 840,
+      "estimatedLaunchTime": "0.4s",
+      "uptime": "99.99%"
+    },
+    {
+      "id": "architech-agent",
+      "name": "Architech Agent",
+      "description": "Immersive structure designer and spatial reasoning assistant. Directly co-author architectural blueprints, floor plans, and custom interior modules with ease.",
+      "logo": "Sparkles",
+      "category": "Content Creation",
+      "tags": [
+        "3D Blueprints",
+        "Spatial AI",
+        "Floor Planner",
+        "Architecture"
+      ],
+      "url": "https://architechagent.netlify.app/",
+      "featured": true,
+      "premium": false,
+      "views": 28409,
+      "rating": 4.8,
+      "ratingsCount": 650,
+      "estimatedLaunchTime": "1.2s",
+      "uptime": "99.95%"
+    },
+    {
+      "id": "futuristic-hab-tracker",
+      "name": "Futuristic Habitation Tracker",
+      "description": "Intelligent environment and routine workflow companion. Log health markers, track daily goals, and optimize your systems from a sleek cybernetic engine.",
+      "logo": "Activity",
+      "category": "Productivity",
+      "tags": [
+        "Habit Tracker",
+        "Smart Living",
+        "Analytics Engine",
+        "Cybernetics"
+      ],
+      "url": "https://futuristichabbittrcaker.netlify.app/",
+      "featured": true,
+      "premium": false,
+      "views": 24391,
+      "rating": 4.8,
+      "ratingsCount": 512,
+      "estimatedLaunchTime": "0.8s",
+      "uptime": "99.92%"
+    },
+    {
+      "id": "earthvision-ai",
+      "name": "EarthVision AI",
+      "description": "Advanced geospatial maps analyzer and ecological observer. Interrogate deep high-fidelity sat-imagery pipelines and check environmental shifts worldwide.",
+      "logo": "Globe",
+      "category": "Data Analysis",
+      "tags": [
+        "Satellite Imagery",
+        "Geospatial AI",
+        "Ecological Mapping",
+        "Maps Platform"
+      ],
+      "url": "https://earthvisionai.netlify.app/",
+      "featured": true,
+      "premium": false,
+      "views": 29503,
+      "rating": 4.9,
+      "ratingsCount": 710,
+      "estimatedLaunchTime": "0.9s",
+      "uptime": "99.97%"
+    },
+    {
+      "id": "iah-ai-studio",
+      "name": "IAH AI Studio",
+      "description": "Sovereign intelligence studio and builder workspace. Formulate customized model workflows, code responsive user interfaces, and deploy instant sandboxes.",
+      "logo": "Sparkles",
+      "category": "Content Creation",
+      "tags": [
+        "Intelligence Studio",
+        "Code Sandboxing",
+        "Visual Generation",
+        "Workspace"
+      ],
+      "url": "https://iahaistudio.netlify.app/",
+      "featured": true,
+      "premium": false,
+      "views": 25402,
+      "rating": 4.8,
+      "ratingsCount": 420,
+      "estimatedLaunchTime": "1.5s",
+      "uptime": "99.94%"
+    }
+  ],
+  "users": [
+    {
+      "id": "usr-1780856913636",
+      "email": "adikumarsharma06@gmail.com",
+      "fullName": "Adi Kumar Sharma",
+      "avatarUrl": "https://api.dicebear.com/7.x/bottts/svg?seed=Adi%20Kumar%20Sharma",
+      "subscription": "free",
+      "createdAt": "2026-06-07T18:28:33.637Z",
+      "favorites": [],
+      "recentApps": [
+        "iah-chat"
+      ]
+    }
+  ],
+  "notifications": [
+    {
+      "id": "notif-1",
+      "title": "Welcome to IAH.AI Platform!",
+      "message": "Explore the next generation of AI services. Access built-in premium chat, professional copywriting, and direct vector artwork utilities instantly.",
+      "date": "2026-06-07 18:00",
+      "read": false,
+      "category": "system"
+    },
+    {
+      "id": "notif-2",
+      "title": "New Built-in App: Scribe Copywriter Suite",
+      "message": "Our writing companion Scribe Pro Writing Suite has launched! Automatically draft newsletters, email copies, and LinkedIn micro-blogs with high-fidelity control.",
+      "date": "2026-06-06 14:30",
+      "read": false,
+      "category": "new-app"
+    }
+  ],
+  "feedbacks": [],
+  "suggestions": [],
+  "billings": [],
+  "activeSessions": {
+    "tok-ik2rttyduj9": "adikumarsharma06@gmail.com",
+    "tok-khdpvgzhoq": "adikumarsharma06@gmail.com",
+    "tok-83jr9wuolk5": "adikumarsharma06@gmail.com"
+  }
+}
