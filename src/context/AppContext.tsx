@@ -22,7 +22,14 @@ interface AppContextType {
   
   // Auth
   login: (email: string) => Promise<boolean>;
-  signup: (email: string, fullName: string, phone?: string) => Promise<boolean>;
+  signup: (
+    email: string, 
+    fullName: string, 
+    phone?: string, 
+    accessPurpose?: string, 
+    departmentAffiliation?: string, 
+    securityKey?: string
+  ) => Promise<boolean>;
   logout: () => void;
   updateProfile: (updates: Partial<User>) => Promise<boolean>;
   
@@ -178,12 +185,27 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     return false;
   };
 
-  const signup = async (email: string, fullName: string, phone?: string): Promise<boolean> => {
+  const signup = async (
+    email: string, 
+    fullName: string, 
+    phone?: string, 
+    accessPurpose?: string, 
+    departmentAffiliation?: string, 
+    securityKey?: string
+  ): Promise<boolean> => {
     try {
       const response = await fetch('/api/auth/signup', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password: 'password123', fullName, phone })
+        body: JSON.stringify({ 
+          email, 
+          password: 'password123', 
+          fullName, 
+          phone, 
+          accessPurpose, 
+          departmentAffiliation, 
+          securityKey 
+        })
       });
       const data = await response.json();
       if (data.success) {

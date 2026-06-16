@@ -3,7 +3,8 @@ import { useApp } from '../context/AppContext';
 import { 
   ShieldCheck, Cpu, Key, Mail, Sparkles, Terminal, ToggleLeft, 
   UserPlus, LogIn, Phone, Database, CloudLightning, Activity,
-  Smartphone, CheckCircle, Send, ChevronRight, Fingerprint, Globe, Shield, Lock
+  Smartphone, CheckCircle, Send, ChevronRight, Fingerprint, Globe, Shield, Lock,
+  ChevronLeft, Award, Blocks
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 
@@ -16,12 +17,21 @@ export default function InteractiveAuthGate({ onSuccess }: InteractiveAuthGatePr
   
   // High fidelity state stages: 'welcome' | 'auth' | 'booting'
   const [stage, setStage] = useState<'welcome' | 'auth' | 'booting'>('welcome');
-  
   const [authMode, setAuthMode] = useState<'signup' | 'login'>('signup');
-  const [fullName, setFullName] = useState('Adi Kumar Sharma');
-  const [email, setEmail] = useState('adikumarsharma06@gmail.com');
-  const [phone, setPhone] = useState('7980259343');
   
+  // Setup all form inputs as blank/empty by default for user to type/select
+  const [fullName, setFullName] = useState('');
+  const [email, setEmail] = useState('');
+  const [phone, setPhone] = useState('');
+  const [accessPurpose, setAccessPurpose] = useState('');
+  const [departmentAffiliation, setDepartmentAffiliation] = useState('');
+  const [securityKey, setSecurityKey] = useState('');
+  const [accessAgreed, setAccessAgreed] = useState(false);
+  
+  // High professional wizard step state (Step 1: ID Gateway, Step 2: Protocol Core, Step 3: Security & Build)
+  const [activeStep, setActiveStep] = useState(1);
+  const [generationLoading, setGenerationLoading] = useState(false);
+
   // Loading & logs state for the booting phase
   const [bootProgress, setBootProgress] = useState(0);
   const [bootLogIndex, setBootLogIndex] = useState(0);
@@ -31,9 +41,9 @@ export default function InteractiveAuthGate({ onSuccess }: InteractiveAuthGatePr
     '⚡ [STASIS Engine] Initializing 3D spatial graphics pipelines...',
     '🔐 [Security Core] Establishing cryptographic tunnel with TLS_1.3 protocol...',
     '💾 [Cloud DB Broker] Syncing local offline buffers for index structures...',
-    '📊 [Analytics Pipeline] Verifying tracking credentials for account phone reference...',
+    '📊 [Analytics Pipeline] Verifying tracking credentials and account phone reference...',
     '🛰️ [Telemetry Router] Linking global communications nodes at port 3000...',
-    '📥 [Data Shield] Encrypting data savings cache modules for user +91 7980259343...',
+    '📥 [Data Shield] Encrypting data savings cache modules...',
     '🚀 [Core Engine] Initialization certified. Handshaking complete. Launching IAH.AI...'
   ];
 
@@ -64,7 +74,7 @@ export default function InteractiveAuthGate({ onSuccess }: InteractiveAuthGatePr
           
           return nextProgress;
         });
-      }, 250);
+      }, 235);
     }
     return () => clearInterval(interval);
   }, [stage, onSuccess]);
@@ -74,21 +84,33 @@ export default function InteractiveAuthGate({ onSuccess }: InteractiveAuthGatePr
     setErrorText('');
 
     if (!email) {
-      setErrorText('Please enter your email credentials.');
+      setErrorText('Please enter your identity email credentials.');
       return;
     }
 
     try {
       if (authMode === 'signup') {
         if (!fullName) {
-          setErrorText('Full Name is required.');
+          setErrorText('Full Name is required for registration.');
           return;
         }
         if (!phone) {
-          setErrorText('Phone Number coordinates are required.');
+          setErrorText('Phone Number contact coordinate is required.');
           return;
         }
-        const ok = await signup(email, fullName, phone);
+        if (!accessAgreed) {
+          setErrorText('Please acknowledge and check the system security protocol agreement.');
+          return;
+        }
+        
+        const ok = await signup(
+          email, 
+          fullName, 
+          phone, 
+          accessPurpose || 'General App Center Access',
+          departmentAffiliation || 'Independent Workspace Partner',
+          securityKey || 'SECURE-NONE-SPECIFIED'
+        );
         if (ok) {
           setStage('booting');
         } else {
@@ -99,7 +121,7 @@ export default function InteractiveAuthGate({ onSuccess }: InteractiveAuthGatePr
         if (ok) {
           setStage('booting');
         } else {
-          setErrorText('Authentication query failed. User match not verified.');
+          setErrorText('Authentication query failed. User match not verified in database.');
         }
       }
     } catch (err) {
@@ -107,11 +129,61 @@ export default function InteractiveAuthGate({ onSuccess }: InteractiveAuthGatePr
     }
   };
 
+  const handleNextStep = () => {
+    setErrorText('');
+    if (activeStep === 1) {
+      if (!fullName.trim() || !email.trim() || !phone.trim()) {
+        setErrorText('Please complete your fundamental profile coordinates first.');
+        return;
+      }
+      if (!email.includes('@')) {
+        setErrorText('Please input a valid identity email format.');
+        return;
+      }
+      setActiveStep(2);
+    } else if (activeStep === 2) {
+      if (!accessPurpose) {
+        setErrorText('Please select an access purpose domain indicator.');
+        return;
+      }
+      if (!departmentAffiliation.trim()) {
+        setErrorText('Please specify your affiliation or development group.');
+        return;
+      }
+      setActiveStep(3);
+    }
+  };
+
+  const handlePrevStep = () => {
+    setErrorText('');
+    setActiveStep(prev => Math.max(prev - 1, 1));
+  };
+
+  const generateCryptographicPasskey = () => {
+    if (!phone) {
+      setErrorText('Please provide a phone contact number on primary step to calibrate key seed values.');
+      return;
+    }
+    setGenerationLoading(true);
+    setTimeout(() => {
+      const sanitizedPhone = phone.replace(/[^0-9]/g, '') || '7980259343';
+      const cleanName = fullName.toUpperCase().replace(/[^A-Z]/g, '').substring(0, 4) || 'CORE';
+      const code = `IAH-${cleanName}-${sanitizedPhone.slice(-4)}-${Math.floor(1000 + Math.random() * 9000)}-QSEC`;
+      setSecurityKey(code);
+      setGenerationLoading(false);
+    }, 600);
+  };
+
   const loadDemoPresets = () => {
     setFullName('Adi Kumar Sharma');
     setEmail('adikumarsharma06@gmail.com');
     setPhone('7980259343');
+    setAccessPurpose('Sovereign AI Exploration');
+    setDepartmentAffiliation('Architect Core Labs');
+    setSecurityKey('IAH-SHAR-9343-4812-QSEC');
+    setAccessAgreed(true);
     setErrorText('');
+    setActiveStep(3);
   };
 
   // Text variant for staggered welcome lettering
@@ -131,6 +203,13 @@ export default function InteractiveAuthGate({ onSuccess }: InteractiveAuthGatePr
     show: { opacity: 1, y: 0, transition: { duration: 0.5, ease: "easeOut" } }
   };
 
+  const domainOptions = [
+    { title: 'Sovereign AI Exploration', desc: 'Query and test customized model blueprints', icon: Cpu, color: '#00E5FF' },
+    { title: 'Full-Stack App Testing', desc: 'Deploy instant code sandbox architectures', icon: Blocks, color: '#00FFB2' },
+    { title: 'System Security Audit', desc: 'Validate telemetry logs & dynamic dispatch systems', icon: Shield, color: '#7C3AED' },
+    { title: 'Development Workspace Research', desc: 'Formulate private tracker dashboard schemas', icon: Terminal, color: '#F59E0B' }
+  ];
+
   return (
     <div className="fixed inset-0 z-50 bg-[#040611] flex items-center justify-center p-4 overflow-y-auto select-none">
       
@@ -149,21 +228,20 @@ export default function InteractiveAuthGate({ onSuccess }: InteractiveAuthGatePr
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 1.05, filter: "blur(10px)" }}
             transition={{ duration: 0.6, ease: "easeInOut" }}
-            className="max-w-xl w-full text-center space-y-10 z-10"
+            className="max-w-xl w-full text-center space-y-10 z-10 py-6"
           >
             
             {/* Pulsing Holomatrix Logo */}
             <div className="relative inline-block">
-              {/* Outer multi-color glow circles */}
               <motion.div
                 animate={{ rotate: 360 }}
                 transition={{ repeat: Infinity, duration: 12, ease: "linear" }}
-                className="absolute -inset-6 rounded-full bg-gradient-to-r from-[#00E5FF] via-[#7C3AED] to-[#00FFB2] opacity-25 blur-xl"
+                className="absolute -inset-6 rounded-full bg-gradient-to-r from-[#00E5FF] via-[#7C3AED] to-[#00FFB2] opacity-25 blur-xl pointer-events-none"
               />
               <motion.div
                 animate={{ scale: [1, 1.08, 1] }}
                 transition={{ repeat: Infinity, duration: 3, ease: "easeInOut" }}
-                className="absolute -inset-2 rounded-full bg-cyan-500/10 border border-cyan-500/20"
+                className="absolute -inset-2 rounded-full bg-cyan-500/10 border border-cyan-500/20 pointer-events-none"
               />
               
               {/* High-Contrast Vector Hexagon Icon */}
@@ -204,12 +282,14 @@ export default function InteractiveAuthGate({ onSuccess }: InteractiveAuthGatePr
               animate="show"
               className="space-y-4"
             >
-              <motion.span 
-                variants={titleItemVariants}
-                className="px-4 py-1.5 rounded-full bg-white/5 border border-white/10 text-[9px] font-black uppercase tracking-[0.4em] text-[#00E5FF] inline-block shadow-lg"
-              >
-                Secure Quantum Node Active
-              </motion.span>
+              <div className="flex justify-center">
+                <motion.span 
+                  variants={titleItemVariants}
+                  className="px-4 py-1.5 rounded-full bg-white/5 border border-white/10 text-[9px] font-black uppercase tracking-[0.4em] text-[#00E5FF] inline-block shadow-lg"
+                >
+                  Secure Quantum Node Active
+                </motion.span>
+              </div>
               
               <motion.h1 
                 variants={titleItemVariants}
@@ -277,161 +357,427 @@ export default function InteractiveAuthGate({ onSuccess }: InteractiveAuthGatePr
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: -25, scale: 0.98 }}
             transition={{ duration: 0.45, ease: "easeOut" }}
-            className="max-w-md w-full relative z-10"
+            className="max-w-xl w-full relative z-10 py-4"
           >
             {/* Visual glow backdrop coordinates */}
-            <div className="absolute -inset-2 rounded-3xl bg-gradient-to-tr from-[#7C3AED] via-[#00E5FF] to-[#00FFB2] opacity-30 blur-xl pointer-events-none" />
+            <div className="absolute -inset-2 rounded-3xl bg-gradient-to-tr from-[#7C3AED] via-[#00E5FF] to-[#00FFB2] opacity-25 blur-xl pointer-events-none" />
 
             <div className="bg-[#0b1020]/95 backdrop-blur-2xl border border-white/10 rounded-3xl p-6 md:p-8 shadow-2xl relative space-y-6 text-left">
               
               {/* Header description */}
               <div className="space-y-2 text-center md:text-left">
-                <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#00E5FF]/10 border border-[#00E5FF]/20 text-[9px] font-bold uppercase tracking-wider text-[#00E5FF] mx-auto md:mx-0">
-                  <Fingerprint size={10} className="animate-pulse" />
-                  <span>STASIS COGNITIVE GRID GATING</span>
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-2 border-b border-white/5 pb-4">
+                  <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#00E5FF]/10 border border-[#00E5FF]/20 text-[9px] font-bold uppercase tracking-wider text-[#00E5FF] mx-auto md:mx-0">
+                    <Fingerprint size={10} className="animate-pulse" />
+                    <span>STASIS COGNITIVE GRID GATING</span>
+                  </div>
+                  
+                  {/* Step path dots for signup mode */}
+                  {authMode === 'signup' && (
+                    <div className="flex items-center justify-center gap-1.5 self-center">
+                      {[1, 2, 3].map(stepNum => (
+                        <div key={stepNum} className="flex items-center">
+                          <div 
+                            className={`w-5 h-5 rounded-md text-[9px] font-bold flex items-center justify-center font-mono border transition-all ${
+                              activeStep === stepNum 
+                                ? 'bg-[#00E5FF] text-black border-transparent shadow-[0_0_8px_#00E5FF]' 
+                                : activeStep > stepNum 
+                                  ? 'bg-[#00FFB2]/20 text-[#00FFB2] border-[#00FFB2]/30' 
+                                  : 'bg-[#040611] text-white/30 border-white/10'
+                            }`}
+                          >
+                            {stepNum}
+                          </div>
+                          {stepNum < 3 && <div className={`w-3 h-[1px] ${activeStep > stepNum ? 'bg-[#00FFB2]' : 'bg-white/10'}`} />}
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
 
-                <h1 className="text-2xl md:text-3xl font-black uppercase tracking-tight text-white leading-tight">
-                  Intelligent Portal
-                </h1>
-                <p className="text-white/50 text-xs leading-relaxed">
-                  Provide authorization credentials to run low-latency AI models, custom developer workspace nodes, and private system trackers.
-                </p>
+                <div className="pt-2">
+                  <h1 className="text-2xl md:text-3xl font-black uppercase tracking-tight text-white leading-tight">
+                    {authMode === 'signup' ? 'Workspace Registration' : 'Intelligent Gateway Log'}
+                  </h1>
+                  <p className="text-white/50 text-xs leading-relaxed">
+                    {authMode === 'signup' 
+                      ? 'Create credentials to register custom developer workspaces, low-latency AI runs, and persistent telemetry trackers.'
+                      : 'Provide secure access credentials to retrieve, sync, and authorize your existing sandbox workspaces.'
+                    }
+                  </p>
+                </div>
               </div>
 
-              {/* Prefill credentials panel */}
-              <div className="p-3.5 bg-cyan-950/20 border border-cyan-500/15 rounded-xl flex items-center justify-between text-xs">
+              {/* Prefill credentials panel - optional shortcut */}
+              <div className="p-3 bg-cyan-950/25 border border-cyan-500/15 rounded-xl flex flex-col md:flex-row md:items-center justify-between gap-2.5 text-xs">
                 <div className="space-y-0.5">
-                  <span className="block text-[11px] font-black text-white uppercase tracking-wider">Demo Credentials</span>
-                  <span className="text-[10px] text-[#00E5FF] font-mono leading-none font-bold">Instantly map secure preset details</span>
+                  <span className="block text-[11px] font-black text-white uppercase tracking-wider">Demo Sandbox Bypass</span>
+                  <span className="text-[10px] text-[#00E5FF] font-mono leading-none">Bypass manual filling with pre-calibrated testing profile</span>
                 </div>
                 <button 
                   id="preset-demo-trigger"
                   type="button"
                   onClick={loadDemoPresets}
-                  className="px-3 py-1.5 bg-gradient-to-r from-[#00E5FF]/20 to-[#00FFB2]/20 border border-[#00E5FF]/30 text-[#00E5FF] font-black text-[9px] tracking-wide rounded-md hover:bg-[#00E5FF] hover:text-black hover:border-transparent transition-all cursor-pointer"
+                  className="px-3.5 py-2 bg-gradient-to-r from-[#00E5FF]/20 to-[#00FFB2]/20 border border-[#00E5FF]/30 text-[#00E5FF] font-black text-[9px] tracking-widest rounded-lg hover:bg-gradient-to-r hover:from-[#00E5FF] hover:to-[#00FFB2] hover:text-black hover:border-transparent transition-all cursor-pointer select-none active:scale-95"
                 >
-                  PREFILL NOW
+                  ONE-CLICK PREFILL
                 </button>
               </div>
 
-              <form onSubmit={handleSubmit} className="space-y-4">
+              {/* Action Mode Toggle Switches */}
+              <div className="grid grid-cols-2 p-1 bg-[#040611] rounded-xl border border-white/5 text-xs font-bold font-sans">
+                <button
+                  type="button"
+                  id="toggle-signup-mode"
+                  onClick={() => { setAuthMode('signup'); setErrorText(''); setActiveStep(1); }}
+                  className={`py-2 rounded-lg transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
+                    authMode === 'signup' 
+                    ? 'bg-gradient-to-r from-[#00E5FF]/15 to-[#00FFB2]/15 border border-[#00E5FF]/20 text-white font-black' 
+                    : 'text-white/40 hover:text-white/85'
+                  }`}
+                >
+                  <UserPlus size={13} />
+                  <span>Register Sandbox Portal</span>
+                </button>
+                <button
+                  type="button"
+                  id="toggle-login-mode"
+                  onClick={() => { setAuthMode('login'); setErrorText(''); }}
+                  className={`py-2 rounded-lg transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
+                    authMode === 'login' 
+                    ? 'bg-gradient-to-r from-[#00E5FF]/15 to-[#00FFB2]/15 border border-[#00E5FF]/20 text-white font-black' 
+                    : 'text-white/40 hover:text-white/85'
+                  }`}
+                >
+                  <LogIn size={13} />
+                  <span>Existing Member</span>
+                </button>
+              </div>
+
+              {errorText && (
+                <motion.div 
+                  initial={{ opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="p-3 rounded-xl bg-red-950/40 border border-red-500/20 text-red-400 text-xs font-semibold"
+                >
+                  ⚠️ {errorText}
+                </motion.div>
+              )}
+
+              {/* Interactive Form System */}
+              <form onSubmit={handleSubmit} className="space-y-6">
                 
-                {/* Auth Mode Toggle Switches */}
-                <div className="grid grid-cols-2 p-1 bg-[#040611] rounded-xl border border-white/5 text-xs font-bold font-sans">
-                  <button
-                    type="button"
-                    id="toggle-signup-mode"
-                    onClick={() => { setAuthMode('signup'); setErrorText(''); }}
-                    className={`py-2 rounded-lg transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
-                      authMode === 'signup' 
-                      ? 'bg-gradient-to-r from-[#00E5FF]/15 to-[#00FFB2]/15 border border-[#00E5FF]/20 text-white font-black' 
-                      : 'text-white/40 hover:text-white/85'
-                    }`}
-                  >
-                    <UserPlus size={13} />
-                    <span>Create Account</span>
-                  </button>
-                  <button
-                    type="button"
-                    id="toggle-login-mode"
-                    onClick={() => { setAuthMode('login'); setErrorText(''); }}
-                    className={`py-2 rounded-lg transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
-                      authMode === 'login' 
-                      ? 'bg-gradient-to-r from-[#00E5FF]/15 to-[#00FFB2]/15 border border-[#00E5FF]/20 text-white font-black' 
-                      : 'text-white/40 hover:text-white/85'
-                    }`}
-                  >
-                    <LogIn size={13} />
-                    <span>Existing User</span>
-                  </button>
-                </div>
+                {/* SIGNUP STEPPED SEQUENCE */}
+                {authMode === 'signup' ? (
+                  <div className="space-y-4">
+                    
+                    {/* STEP 1: KEY PERSONAL COORDINATES */}
+                    {activeStep === 1 && (
+                      <motion.div 
+                        initial={{ opacity: 0, x: 10 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        exit={{ opacity: 0, x: -10 }}
+                        className="space-y-4"
+                      >
+                        <div className="flex items-center justify-between border-b border-white/5 pb-2">
+                          <span className="text-[10px] font-mono text-[#00E5FF] font-black uppercase tracking-wider">Step 01: Fundamental Identity</span>
+                          <span className="text-[9px] text-white/30 truncate">Fields must be answered from blank</span>
+                        </div>
 
-                {errorText && (
-                  <div className="p-3 rounded-lg bg-red-950/40 border border-red-500/20 text-red-400 text-xs font-semibold">
-                    ⚠️ {errorText}
+                        <div>
+                          <label className="block text-[10px] font-black uppercase text-white/50 tracking-wider mb-1">Developer Full Name</label>
+                          <div className="relative">
+                            <span className="absolute left-3.5 top-3 text-white/30 text-[10px] font-mono font-bold select-none">@</span>
+                            <input 
+                              id="signup-name-field"
+                              type="text"
+                              className="w-full bg-[#040611] border border-white/10 rounded-xl pl-9 pr-4 py-2.5 text-xs focus:outline-none focus:border-[#00E5FF] transition-all text-white placeholder-white/20"
+                              placeholder="Type your full name (Starts blank)"
+                              value={fullName}
+                              onChange={(e) => setFullName(e.target.value)}
+                              required
+                            />
+                          </div>
+                        </div>
+
+                        <div>
+                          <label className="block text-[10px] font-black uppercase text-white/50 tracking-wider mb-1">Identity Email ID</label>
+                          <div className="relative">
+                            <Mail className="absolute left-3.5 top-3.5 text-white/30" size={13} />
+                            <input 
+                              id="signup-email-field"
+                              type="email"
+                              className="w-full bg-[#040611] border border-white/10 rounded-xl pl-9 pr-4 py-2.5 text-xs focus:outline-none focus:border-[#00E5FF] transition-all text-white placeholder-white/20"
+                              placeholder="Type email address (Starts blank)"
+                              value={email}
+                              onChange={(e) => setEmail(e.target.value)}
+                              required
+                            />
+                          </div>
+                        </div>
+
+                        <div>
+                          <label className="block text-[10px] font-black uppercase text-white/50 tracking-wider mb-1">WhatsApp / Contact Coordinate</label>
+                          <div className="relative">
+                            <Phone className="absolute left-3.5 top-3.5 text-white/30" size={13} />
+                            <input 
+                              id="signup-phone-field"
+                              type="tel"
+                              className="w-full bg-[#040611] border border-white/10 rounded-xl pl-9 pr-4 py-2.5 text-xs focus:outline-none focus:border-[#00E5FF] transition-all text-white font-mono placeholder-white/20"
+                              placeholder="Enter WhatsApp / mobile line (Starts blank)"
+                              value={phone}
+                              onChange={(e) => setPhone(e.target.value)}
+                              required
+                            />
+                          </div>
+                          <span className="block text-[9px] text-white/40 font-mono mt-1.5 leading-normal">
+                            📋 Custom logs and synchronization notifications will match this contact reference.
+                          </span>
+                        </div>
+
+                        {/* Navigation Row */}
+                        <div className="pt-4 flex justify-end">
+                          <button
+                            type="button"
+                            onClick={handleNextStep}
+                            className="px-5 py-2.5 bg-white/5 hover:bg-white/10 text-white font-black uppercase text-[10px] tracking-wider rounded-xl border border-white/10 hover:border-[#00E5FF]/30 transition-all cursor-pointer flex items-center gap-1.5"
+                          >
+                            <span>Proceed Code Protocol</span>
+                            <ChevronRight size={12} className="stroke-[3]" />
+                          </button>
+                        </div>
+                      </motion.div>
+                    )}
+
+                    {/* STEP 2: PROTOCOL CORE & ACCESS DOMAINS */}
+                    {activeStep === 2 && (
+                      <motion.div 
+                        initial={{ opacity: 0, x: 10 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        exit={{ opacity: 0, x: -10 }}
+                        className="space-y-4"
+                      >
+                        <div className="flex items-center justify-between border-b border-white/5 pb-2">
+                          <span className="text-[10px] font-mono text-[#00E5FF] font-black uppercase tracking-wider">Step 02: Space Alignment</span>
+                          <span className="text-[9px] text-white/30">Identify purpose and authorization domain</span>
+                        </div>
+
+                        {/* Purpose selection cards */}
+                        <div>
+                          <label className="block text-[10px] font-black uppercase text-white/50 tracking-wider mb-2">Select Primary Access Domain</label>
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                            {domainOptions.map(option => {
+                              const SelectedIcon = option.icon;
+                              const isSelected = accessPurpose === option.title;
+                              return (
+                                <button
+                                  type="button"
+                                  key={option.title}
+                                  onClick={() => setAccessPurpose(option.title)}
+                                  className={`p-3 rounded-xl border text-left flex gap-3 transition-all cursor-pointer select-none ${
+                                    isSelected 
+                                      ? 'bg-white/5 border-[rgba(0,229,255,0.4)] shadow-[0_0_15px_rgba(0,229,255,0.1)]' 
+                                      : 'bg-[#040611] border-white/5 hover:border-white/10 hover:bg-white/2'
+                                  }`}
+                                >
+                                  <div className="mt-0.5 rounded-lg p-1.5 flex items-center justify-center bg-white/3" style={{ color: option.color }}>
+                                    <SelectedIcon size={14} />
+                                  </div>
+                                  <div className="space-y-0.5 truncate">
+                                    <span className="block text-xs font-black text-white truncate">{option.title}</span>
+                                    <span className="block text-[9px] text-white/40 leading-tight whitespace-normal">{option.desc}</span>
+                                  </div>
+                                </button>
+                              );
+                            })}
+                          </div>
+                        </div>
+
+                        <div>
+                          <label className="block text-[10px] font-black uppercase text-white/50 tracking-wider mb-1">Company / Department Affiliation</label>
+                          <input 
+                            type="text"
+                            value={departmentAffiliation}
+                            onChange={(e) => setDepartmentAffiliation(e.target.value)}
+                            placeholder="Independent researcher, development team, organization..."
+                            className="w-full bg-[#040611] border border-white/10 rounded-xl px-4 py-2.5 text-xs focus:outline-none focus:border-[#00E5FF] transition-all text-white placeholder-white/20"
+                            required
+                          />
+                        </div>
+
+                        {/* Navigation Row */}
+                        <div className="pt-4 flex justify-between gap-4">
+                          <button
+                            type="button"
+                            onClick={handlePrevStep}
+                            className="px-4 py-2 bg-transparent text-white/50 hover:text-white font-bold text-xs flex items-center gap-1 transition-all cursor-pointer"
+                          >
+                            <ChevronLeft size={14} />
+                            <span>Previous</span>
+                          </button>
+
+                          <button
+                            type="button"
+                            onClick={handleNextStep}
+                            className="px-5 py-2.5 bg-white/5 hover:bg-white/10 text-white font-black uppercase text-[10px] tracking-wider rounded-xl border border-white/10 hover:border-[#00E5FF]/30 transition-all cursor-pointer flex items-center gap-1.5"
+                          >
+                            <span>Verify Device Code</span>
+                            <ChevronRight size={12} className="stroke-[3]" />
+                          </button>
+                        </div>
+                      </motion.div>
+                    )}
+
+                    {/* STEP 3: SECURITY KEYS AND BUILDS */}
+                    {activeStep === 3 && (
+                      <motion.div 
+                        initial={{ opacity: 0, x: 10 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        exit={{ opacity: 0, x: -10 }}
+                        className="space-y-4"
+                      >
+                        <div className="flex items-center justify-between border-b border-white/5 pb-2">
+                          <span className="text-[10px] font-mono text-[#00E5FF] font-black uppercase tracking-wider">Step 03: Security Credentials</span>
+                          <span className="text-[9px] text-white/30">Sign cryptographic access key</span>
+                        </div>
+
+                        <div>
+                          <div className="flex justify-between items-center mb-1">
+                            <label className="text-[10px] font-black uppercase text-white/50 tracking-wider">Secure Master Token Key</label>
+                            <span className="text-[9px] text-cyan-400 font-bold font-mono">Quantum Cryptography</span>
+                          </div>
+
+                          <div className="flex gap-2">
+                            <input 
+                              type="text"
+                              value={securityKey}
+                              onChange={(e) => setSecurityKey(e.target.value)}
+                              placeholder="Generate token or type unique security credentials"
+                              className="w-full bg-[#040611] border border-white/10 rounded-xl px-4 py-2.5 text-xs focus:outline-none focus:border-[#00E5FF] transition-all text-[#00FFB2] font-mono placeholder-white/20"
+                            />
+                            
+                            <button
+                              type="button"
+                              onClick={generateCryptographicPasskey}
+                              disabled={generationLoading}
+                              className="px-3 bg-gradient-to-tr from-cyan-950/40 to-cyan-850/40 hover:from-cyan-900 hover:to-[#00FFB2]/20 border border-cyan-500/20 text-[#00E5FF] font-bold text-[10px] uppercase rounded-xl transition-all cursor-pointer flex items-center justify-center gap-1 whitespace-nowrap"
+                            >
+                              {generationLoading ? (
+                                <span className="animate-spin h-3.5 w-3.5 border-2 border-t-transparent border-[#00E5FF] rounded-full" />
+                              ) : (
+                                <>
+                                  <Key size={11} />
+                                  <span>GENERATE KEY</span>
+                                </>
+                              )}
+                            </button>
+                          </div>
+                          
+                          {securityKey && (
+                            <div className="mt-2 bg-[#040611]/80 border border-[#00FFB2]/10 p-2.5 rounded-lg text-left font-mono text-[9px] text-white/60 space-y-1">
+                              <div className="text-[8px] text-[#00FFB2] uppercase tracking-[0.2em] font-black flex items-center gap-1">
+                                <Award size={10} /> Active Crypto Seal Verified
+                              </div>
+                              <span className="block truncate">Registered to: <strong className="text-white font-black">{fullName || '@anonymous'}</strong></span>
+                              <span className="block">Timestamp reference: <strong className="font-semibold text-[#00E5FF]">{new Date().toISOString()}</strong></span>
+                            </div>
+                          )}
+                        </div>
+
+                        {/* Interactive Verification Checks */}
+                        <div className="p-3.5 bg-red-950/10 border border-white/5 rounded-xl space-y-2">
+                          <label className="flex items-start gap-2.5 cursor-pointer selection-none">
+                            <input 
+                              type="checkbox"
+                              checked={accessAgreed}
+                              onChange={(e) => setAccessAgreed(e.target.checked)}
+                              className="mt-0.5 rounded border-white/20 bg-[#040611] text-[#00E5FF] focus:ring-0 focus:ring-offset-0 cursor-pointer h-3.5 w-3.5"
+                            />
+                            <div className="space-y-0.5">
+                              <span className="block text-[10px] text-white font-black uppercase tracking-wider leading-none">Acknowledge Security Protocol</span>
+                              <p className="text-[9px] text-white/40 leading-normal">
+                                Click here to agree to build offline indexes, synchronize system analytics to cloud nodes, and persist developer session tracking profiles.
+                              </p>
+                            </div>
+                          </label>
+                        </div>
+
+                        {/* Navigation Row */}
+                        <div className="pt-4 flex justify-between gap-4">
+                          <button
+                            type="button"
+                            onClick={handlePrevStep}
+                            className="px-4 py-2 bg-transparent text-white/50 hover:text-white font-bold text-xs flex items-center gap-1 transition-all cursor-pointer"
+                          >
+                            <ChevronLeft size={14} />
+                            <span>Previous</span>
+                          </button>
+
+                          <button
+                            type="submit"
+                            className="px-6 py-2.5 bg-gradient-to-r from-[#00E5FF] to-[#00FFB2] hover:shadow-lg hover:shadow-[#00E5FF]/20 text-black font-black uppercase text-[10px] tracking-wider rounded-xl transition-all cursor-pointer flex items-center gap-1.5 active:scale-95 shadow-md"
+                          >
+                            <span>DEPLOY SECURE CORE</span>
+                            <CloudLightning size={12} className="animate-bounce" />
+                          </button>
+                        </div>
+                      </motion.div>
+                    )}
+
                   </div>
-                )}
-
-                {/* Form fields */}
-                <div className="space-y-3">
-                  
-                  {authMode === 'signup' && (
+                ) : (
+                  /* THE STANDARD SIGN-IN PORTAL FOR RETURNING MEMBERS */
+                  <div className="space-y-4">
                     <div>
-                      <label className="block text-[10px] font-black uppercase text-white/50 tracking-wider mb-1">Developer Full Name</label>
+                      <label className="block text-[10px] font-black uppercase text-white/50 tracking-wider mb-1">Returning Member Email ID</label>
                       <div className="relative">
-                        <span className="absolute left-3.5 top-3 text-white/30 text-[10px] font-mono font-bold select-none">@</span>
+                        <Mail className="absolute left-3.5 top-3.5 text-white/30" size={13} />
                         <input 
-                          id="signup-name-field"
-                          type="text"
-                          className="w-full bg-[#040611] border border-white/10 rounded-xl pl-9 pr-4 py-2.5 text-xs focus:outline-none focus:border-[#00E5FF] transition-all text-white placeholder-white/25"
-                          placeholder="Adi Kumar Sharma"
-                          value={fullName}
-                          onChange={(e) => setFullName(e.target.value)}
+                          id="login-email-field"
+                          type="email"
+                          className="w-full bg-[#040611] border border-white/10 rounded-xl pl-9 pr-4 py-3 text-xs focus:outline-none focus:border-[#00E5FF] transition-all text-white placeholder-white/20 font-mono"
+                          placeholder="Type returning user email address (Starts blank)"
+                          value={email}
+                          onChange={(e) => setEmail(e.target.value)}
                           required
                         />
                       </div>
                     </div>
-                  )}
 
-                  <div>
-                    <label className="block text-[10px] font-black uppercase text-white/50 tracking-wider mb-1">Identity Email ID</label>
-                    <div className="relative">
-                      <Mail className="absolute left-3.5 top-3 text-white/30" size={13} />
-                      <input 
-                        id="signup-email-field"
-                        type="email"
-                        className="w-full bg-[#040611] border border-white/10 rounded-xl pl-9 pr-4 py-2.5 text-xs focus:outline-none focus:border-[#00E5FF] transition-all text-white placeholder-white/25"
-                        placeholder="adikumarsharma06@gmail.com"
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        required
-                      />
-                    </div>
-                  </div>
-
-                  {authMode === 'signup' && (
                     <div>
-                      <label className="block text-[10px] font-black uppercase text-white/50 tracking-wider mb-1">WhatsApp / Mobile Contact link</label>
+                      <label className="block text-[10px] font-black uppercase text-white/50 tracking-wider mb-1">Verify Return Credentials Token</label>
                       <div className="relative">
-                        <Phone className="absolute left-3.5 top-3 text-white/30" size={13} />
+                        <Lock className="absolute left-3.5 top-3.5 text-white/30" size={13} />
                         <input 
-                          id="signup-phone-field"
-                          type="tel"
-                          className="w-full bg-[#040611] border border-white/10 rounded-xl pl-9 pr-4 py-2.5 text-xs focus:outline-none focus:border-[#00E5FF] transition-all text-white font-mono placeholder-white/25"
-                          placeholder="e.g. 7980259343"
-                          value={phone}
-                          onChange={(e) => setPhone(e.target.value)}
-                          required
+                          type="password"
+                          className="w-full bg-[#040611] border border-white/10 rounded-xl pl-9 pr-4 py-3 text-xs focus:outline-none focus:border-[#00E5FF] transition-all text-white"
+                          placeholder="••••••••"
                         />
                       </div>
-                      <span className="block text-[9px] text-white/30 font-mono mt-1">
-                        Security report outputs will match email references. No code required.
+                      <span className="block text-[9px] text-[#00E5FF] font-mono mt-1.5 leading-normal">
+                        🗝️ Returning users authorize their profile via sandbox database structures instantly.
                       </span>
                     </div>
-                  )}
 
-                </div>
-
-                {/* Submissions button */}
-                <button
-                  id="auth-submit-trigger"
-                  type="submit"
-                  className="w-full py-3 bg-gradient-to-r from-[#00E5FF] to-[#00FFB2] hover:shadow-lg hover:shadow-[#00E5FF]/20 text-black font-black uppercase text-xs tracking-wider rounded-xl transition-all cursor-pointer flex items-center justify-center gap-2"
-                >
-                  <span>{authMode === 'signup' ? 'Deploy & Build Account' : 'Authenticate Gateway'}</span>
-                  <CloudLightning size={14} className="animate-pulse" />
-                </button>
+                    <button
+                      type="submit"
+                      className="w-full py-3 bg-gradient-to-r from-[#00E5FF] to-[#00FFB2] hover:shadow-lg hover:shadow-[#00E5FF]/20 text-black font-black uppercase text-xs tracking-wider rounded-xl transition-all cursor-pointer flex items-center justify-center gap-2 active:scale-95 mt-4"
+                    >
+                      <span>Authorize Portal Gate</span>
+                      <CloudLightning size={14} className="animate-pulse" />
+                    </button>
+                  </div>
+                )}
 
               </form>
 
               {/* Portal status markers */}
-              <div className="border-t border-white/5 pt-4 flex justify-between items-center text-[10px] font-mono text-white/30">
+              <div className="border-t border-white/5 pt-4 flex flex-col sm:flex-row gap-2 justify-between items-center text-[10px] font-mono text-white/30">
                 <span className="flex items-center gap-1.5">
                   <Database size={11} className="text-[#00FFB2]" />
                   Active db.json syncing
                 </span>
-                <span className="uppercase text-[9px] text-cyan-400 font-bold">SECURE NODE PORT: 3000</span>
+                <span className="uppercase text-[9px] text-cyan-400 font-bold">SECURE PORTAL PORT: 3000</span>
               </div>
 
             </div>
@@ -465,7 +811,7 @@ export default function InteractiveAuthGate({ onSuccess }: InteractiveAuthGatePr
             </div>
 
             <div className="space-y-2">
-              <h2 className="text-2xl md:text-3xl font-black uppercase tracking-wider text-white">
+              <h2 className="text-2xl md:text-3xl font-black uppercase tracking-wider text-white select-none">
                 BOOTING IAH ECOSYSTEM
               </h2>
               <p className="text-[#00FFB2] font-mono text-[9px] uppercase tracking-widest font-bold animate-pulse">
@@ -490,7 +836,7 @@ export default function InteractiveAuthGate({ onSuccess }: InteractiveAuthGatePr
               </div>
 
               {/* Dynamic live telemetry diagnostic box */}
-              <div className="bg-[#040611] rounded-xl p-4 text-left border border-white/5 font-mono text-[10px] h-28 overflow-y-auto space-y-1.5 text-white/70">
+              <div className="bg-[#040611] rounded-xl p-4 text-left border border-white/5 font-mono text-[10px] h-32 overflow-y-auto space-y-1.5 text-white/70">
                 <div className="text-white/20 select-none pb-1.5 border-b border-white/5 flex items-center gap-2">
                   <Terminal size={11} className="text-[#00E5FF]" />
                   <span>IAH CORE TELEMETRY RECONCILIATION</span>
@@ -509,7 +855,7 @@ export default function InteractiveAuthGate({ onSuccess }: InteractiveAuthGatePr
 
             </div>
 
-            <p className="text-[10px] text-white/35 font-mono">
+            <p className="text-[10px] text-white/35 font-mono select-none">
               Secure TLS_1.3 tunnel certified successfully with offline database state buffers.
             </p>
           </motion.div>

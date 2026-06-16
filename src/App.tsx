@@ -82,8 +82,8 @@ function AppContent() {
 
   const [authModalOpen, setAuthModalOpen] = useState(false);
   const [authMode, setAuthMode] = useState<'login' | 'signup'>('login');
-  const [authEmail, setAuthEmail] = useState('adikumarsharma06@gmail.com');
-  const [authName, setAuthName] = useState('Adi Kumar Sharma');
+  const [authEmail, setAuthEmail] = useState('');
+  const [authName, setAuthName] = useState('');
   
   // Suggestion form under Contact page
   const [contactComment, setContactComment] = useState('');

@@ -30,6 +30,9 @@ export interface User {
   createdAt: string;
   favorites: string[]; // List of App IDs
   recentApps: string[]; // List of App IDs
+  accessPurpose?: string;
+  departmentAffiliation?: string;
+  securityKey?: string;
 }
 
 export interface BillingHistory {

@@ -345,7 +345,7 @@ app.get('/api/admin/metrics', (req, res) => {
 // Authenticarion endpoints
 app.post('/api/auth/signup', (req, res) => {
   const db = loadDB();
-  const { email, password, fullName, phone } = req.body;
+  const { email, password, fullName, phone, accessPurpose, departmentAffiliation, securityKey } = req.body;
 
   if (!email || !password || !fullName) {
     res.status(400).json({ error: 'All fields are required' });
@@ -363,12 +363,15 @@ app.post('/api/auth/signup', (req, res) => {
     id: `usr-${Date.now()}`,
     email: email.toLowerCase(),
     fullName,
-    phone: phone || '7980259343',
+    phone: phone || '',
     avatarUrl: `https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(fullName)}`,
     subscription: 'free',
     createdAt: new Date().toISOString(),
     favorites: [],
-    recentApps: []
+    recentApps: [],
+    accessPurpose: accessPurpose || 'Standard Sandbox Sandbox Mode',
+    departmentAffiliation: departmentAffiliation || 'Independent Explorer',
+    securityKey: securityKey || ''
   };
 
   db.users.push(newUser);
@@ -376,7 +379,7 @@ app.post('/api/auth/signup', (req, res) => {
   const token = `tok-${Math.random().toString(36).substring(2)}`;
   db.activeSessions[token] = newUser.email;
 
-  addLog(`User signed up & registered: ${fullName} (${email.toLowerCase()})`, 'INFO', 'AUTHENTICATOR');
+  addLog(`User signed up & registered: ${fullName} (${email.toLowerCase()}) with department [${newUser.departmentAffiliation}]`, 'INFO', 'AUTHENTICATOR');
   saveDB(db);
   res.json({ success: true, token, user: newUser });
 });
