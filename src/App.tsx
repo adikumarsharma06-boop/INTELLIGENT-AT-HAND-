@@ -39,18 +39,23 @@ function AppContent() {
   const [latency, setLatency] = useState(24);
   const [jitter, setJitter] = useState(0.8);
   const [healthHovered, setHealthHovered] = useState(false);
+  const [latencyHistory, setLatencyHistory] = useState<number[]>(() => 
+    Array.from({ length: 20 }, () => Math.floor(Math.random() * 8) + 20)
+  );
 
   React.useEffect(() => {
     const timer = setInterval(() => {
       setLatency(prev => {
-        const change = Math.floor(Math.random() * 5) - 2; // fluctuate gently
+        const change = Math.floor(Math.random() * 9) - 4; // fluctuate slightly wider (-4 to +4)
         const next = prev + change;
-        return next < 12 ? 12 : next > 38 ? 38 : next;
+        const finalLatency = next < 12 ? 12 : next > 45 ? 45 : next;
+        setLatencyHistory(history => [...history.slice(1), finalLatency]);
+        return finalLatency;
       });
       setJitter(prev => {
-        const change = (Math.random() * 0.3) - 0.15;
+        const change = (Math.random() * 0.6) - 0.3; // fluctuate slightly wider (-0.3 to +0.3)
         const next = parseFloat((prev + change).toFixed(1));
-        return next < 0.3 ? 0.3 : next > 1.8 ? 1.8 : next;
+        return next < 0.2 ? 0.2 : next > 2.2 ? 2.2 : next;
       });
     }, 3000);
     return () => clearInterval(timer);
@@ -299,6 +304,15 @@ function AppContent() {
     );
   }
 
+  // Diagnostic state determination for visual warning alerts
+  const isCritical = latency > 38 || jitter > 1.7;
+  const isWarning = !isCritical && (latency > 30 || jitter > 1.3);
+  
+  const statusColor = isCritical ? '#FF3333' : isWarning ? '#FF9100' : '#00FFB2';
+  const statusText = isCritical ? 'CRITICAL' : isWarning ? 'WARNING' : 'NOMINAL';
+  const textClass = isCritical ? 'text-[#FF3333]' : isWarning ? 'text-[#FF9100]' : 'text-[#00FFB2]';
+  const bgClass = isCritical ? 'bg-[#FF3333]' : isWarning ? 'bg-[#FF9100]' : 'bg-[#00FFB2]';
+
   return (
     <div className="min-h-screen bg-[#050816] text-[#FFFFFF] font-sans antialiased selection:bg-[#00E5FF]/35 selection:text-white">
       
@@ -373,19 +387,25 @@ function AppContent() {
           {/* System Health Status Indicator */}
           <div 
             id="system-health-status-indicator"
-            className="relative flex items-center gap-1.5 px-2 py-1 rounded-xl bg-white/2 border border-white/5 hover:border-[#00FFB2]/20 transition-all cursor-pointer group/health select-none"
+            className={`relative flex items-center gap-1.5 px-2 py-1 rounded-xl bg-[#0B1020]/80 border transition-all cursor-pointer group/health select-none ${
+              isCritical 
+                ? 'border-red-500/40 shadow-[0_0_12px_rgba(255,51,51,0.15)]' 
+                : isWarning 
+                  ? 'border-amber-500/40 shadow-[0_0_12px_rgba(245,158,11,0.15)]' 
+                  : 'border-white/5 hover:border-[#00FFB2]/20'
+            }`}
             onMouseEnter={() => setHealthHovered(true)}
             onMouseLeave={() => setHealthHovered(false)}
             onClick={() => setHealthHovered(prev => !prev)}
             title="System Connection Diagnostics"
           >
             <span className="relative flex h-1.5 w-1.5">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#00FFB2] opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-[#00FFB2]"></span>
+              <span className={`animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 ${bgClass}`}></span>
+              <span className={`relative inline-flex rounded-full h-1.5 w-1.5 ${bgClass}`}></span>
             </span>
             <div className="flex items-center gap-1 font-mono text-[9px] tracking-wide">
               <span className="text-white/40 font-semibold uppercase hidden xs:inline">System:</span>
-              <span className="text-[#00FFB2] font-black uppercase">Nominal</span>
+              <span className={`${textClass} font-black uppercase`}>{statusText}</span>
             </div>
 
             {/* Hover Connection Telemetry Details Popover */}
@@ -401,30 +421,118 @@ function AppContent() {
                 >
                   <div className="flex justify-between items-center border-b border-white/5 pb-1 mb-1">
                     <span className="text-[9px] font-bold uppercase tracking-wider text-[#00E5FF]">Health Diagnostics</span>
-                    <span className="text-[8px] bg-[#00FFB2]/10 text-[#00FFB2] px-1.5 py-0.5 rounded font-black font-mono">NOMINAL</span>
+                    <span className={`text-[8px] px-1.5 py-0.5 rounded font-black font-mono ${
+                      isCritical ? 'bg-red-500/15 text-red-400' : isWarning ? 'bg-amber-500/15 text-amber-400' : 'bg-[#00FFB2]/10 text-[#00FFB2]'
+                    }`}>
+                      {statusText}
+                    </span>
                   </div>
                   <div className="space-y-1 font-mono text-[9px] text-white/60">
                     <div className="flex justify-between">
                       <span>Telemetry Status:</span>
-                      <span className="text-[#00FFB2] font-bold">ONLINE</span>
+                      <span className={`font-bold ${textClass}`}>
+                        {isCritical ? 'DEGRADED' : isWarning ? 'STRESSED' : 'ONLINE'}
+                      </span>
                     </div>
                     <div className="flex justify-between">
                       <span>Simulated Latency:</span>
-                      <span className="text-white font-semibold">{latency} ms</span>
+                      <span className={`font-semibold ${
+                        isCritical ? 'text-red-400' : isWarning ? 'text-amber-400' : 'text-white'
+                      }`}>{latency} ms</span>
                     </div>
                     <div className="flex justify-between">
                       <span>Signal Jitter:</span>
-                      <span className="text-white font-semibold">{jitter} ms</span>
+                      <span className={`font-semibold ${
+                        isCritical ? 'text-red-400' : isWarning ? 'text-amber-400' : 'text-white'
+                      }`}>{jitter} ms</span>
                     </div>
                     <div className="flex justify-between">
                       <span>Packet Dropped:</span>
-                      <span className="text-[#00FFB2] font-semibold">0.00%</span>
+                      <span className={`font-semibold ${
+                        isCritical ? 'text-red-400' : isWarning ? 'text-amber-400' : 'text-[#00FFB2]'
+                      }`}>
+                        {isCritical ? '1.45%' : isWarning ? '0.22%' : '0.00%'}
+                      </span>
                     </div>
                     <div className="flex justify-between">
                       <span>Secure link:</span>
                       <span className="text-white font-semibold">QUIC / TLS_1.3</span>
                     </div>
                   </div>
+
+                  {/* Dynamic SVG Sparkline (Last 60s Latency) */}
+                  {(() => {
+                    const width = 168;
+                    const height = 24;
+                    const minVal = Math.min(...latencyHistory);
+                    const maxVal = Math.max(...latencyHistory);
+                    const valRange = (maxVal - minVal) || 1;
+                    const points = latencyHistory.map((val, i) => {
+                      const x = (i / (latencyHistory.length - 1)) * width;
+                      const y = height - 3 - ((val - minVal) / valRange) * (height - 6);
+                      return `${x},${y}`;
+                    });
+                    const linePath = `M ${points.join(' L ')}`;
+                    const areaPath = `${linePath} L ${width},${height} L 0,${height} Z`;
+                    const currentY = points.length > 0 ? parseFloat(points[points.length - 1].split(',')[1]) : height / 2;
+
+                    return (
+                      <div className="bg-[#040611] border border-white/5 p-2 rounded-lg space-y-1">
+                        <div className="flex justify-between items-center text-[7px] font-mono text-white/40">
+                          <span>60s LATENCY SPARKLINES</span>
+                          <span className={`font-semibold ${textClass}`}>{latency}ms</span>
+                        </div>
+                        <div className="relative h-6 w-full overflow-hidden flex items-end">
+                          <svg width="100%" height={height} viewBox={`0 0 ${width} ${height}`} className="overflow-visible">
+                            <defs>
+                              <linearGradient id="sparklineGrad" x1="0" y1="0" x2="0" y2="1">
+                                <stop offset="0%" stopColor={statusColor} stopOpacity="0.25" />
+                                <stop offset="100%" stopColor={statusColor} stopOpacity="0.0" />
+                              </linearGradient>
+                            </defs>
+                            {/* Area Fill */}
+                            <path
+                              d={areaPath}
+                              fill="url(#sparklineGrad)"
+                              stroke="none"
+                            />
+                            {/* Stroke line */}
+                            <path
+                              d={linePath}
+                              fill="none"
+                              stroke={statusColor}
+                              strokeWidth="1.2"
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                            />
+                            {/* Pulse dot on the last point */}
+                            {points.length > 0 && (
+                              <circle
+                                cx={width}
+                                cy={currentY}
+                                r="2"
+                                fill={statusColor}
+                                className="animate-ping"
+                              />
+                            )}
+                            {points.length > 0 && (
+                              <circle
+                                cx={width}
+                                cy={currentY}
+                                r="1.5"
+                                fill={statusColor}
+                              />
+                            )}
+                          </svg>
+                        </div>
+                        <div className="flex justify-between text-[6px] font-mono text-white/30">
+                          <span>-60s</span>
+                          <span>now</span>
+                        </div>
+                      </div>
+                    );
+                  })()}
+
                   <div className="border-t border-white/5 pt-1.5 mt-1">
                     <button 
                       onClick={(e) => {

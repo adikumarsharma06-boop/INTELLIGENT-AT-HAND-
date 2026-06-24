@@ -93,6 +93,22 @@ export const INITIAL_APPS: AppItem[] = [
     ratingsCount: 420,
     estimatedLaunchTime: '1.5s',
     uptime: '99.94%'
+  },
+  {
+    id: 'iah-ai-helper',
+    name: 'IAH AI Helper',
+    description: 'Autonomous orchestration assistant and companion toolkit. Calibrate system telemetry, coordinate low-latency runs, and automate routine tasks with sovereign AI precision.',
+    logo: 'HelpCircle',
+    category: 'Productivity',
+    tags: ['System Helper', 'Automation Tool', 'Orchestration Core', 'Ecosystem Companion'],
+    url: 'https://iahaihelper.netlify.app/',
+    featured: true,
+    premium: false,
+    views: 18450,
+    rating: 4.9,
+    ratingsCount: 320,
+    estimatedLaunchTime: '0.6s',
+    uptime: '99.98%'
   }
 ];
 
